@@ -1,97 +1,128 @@
-body {
-  font-family: sans-serif;
-  text-align: center;
-  background: #f0f0f0;
-  padding: 30px;
+const icons = [
+  'https://img.icons8.com/color/96/apple.png',
+  'https://img.icons8.com/color/96/orange.png',
+  'https://img.icons8.com/color/96/grapes.png',
+  'https://img.icons8.com/color/96/watermelon.png',
+  'https://img.icons8.com/color/96/strawberry.png',
+  'https://img.icons8.com/color/96/cherry.png',
+  'https://img.icons8.com/color/96/kiwi.png',
+  'https://img.icons8.com/color/96/pineapple.png'
+];
+
+let gameBoard = document.getElementById('game-board');
+let hasFlippedCard = false;
+let lockBoard = false;
+let firstCard, secondCard;
+let matchedPairs = 0;
+let moves = 0;
+let timerInterval;
+let seconds = 0;
+
+let flipSound, matchSound;
+
+window.onload = () => {
+  flipSound = document.getElementById('flip-sound');
+  matchSound = document.getElementById('match-sound');
+  startGame();
+};
+
+function startGame() {
+  gameBoard.innerHTML = '';
+  matchedPairs = 0;
+  moves = 0;
+  seconds = 0;
+  updateMoves();
+  updateTimerDisplay();
+  document.getElementById('win-popup').style.display = 'none';
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    seconds++;
+    updateTimerDisplay();
+  }, 1000);
+
+  const iconPairs = [...icons, ...icons];
+  iconPairs.sort(() => 0.5 - Math.random());
+
+  iconPairs.forEach(icon => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-front"><img src="${icon}" alt="icon"></div>
+        <div class="card-back">?</div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => flipCard(card));
+    gameBoard.appendChild(card);
+  });
 }
 
-h1 {
-  margin-bottom: 20px;
+function flipCard(card) {
+  if (lockBoard) return;
+  if (card === firstCard) return;
+
+  flipSound.play();
+  card.classList.add('flipped');
+
+  if (!hasFlippedCard) {
+    hasFlippedCard = true;
+    firstCard = card;
+    return;
+  }
+
+  secondCard = card;
+  moves++;
+  updateMoves();
+  checkForMatch();
 }
 
-.game-board {
-  display: grid;
-  grid-template-columns: repeat(4, 100px);
-  grid-gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
+function checkForMatch() {
+  const isMatch =
+    firstCard.querySelector('.card-front img').src ===
+    secondCard.querySelector('.card-front img').src;
+
+  isMatch ? handleMatch() : unflipCards();
 }
 
-.card {
-  width: 100px;
-  height: 120px;
-  perspective: 800px;
-  cursor: pointer;
+function handleMatch() {
+  matchSound.play();
+  firstCard.removeEventListener('click', () => flipCard(firstCard));
+  secondCard.removeEventListener('click', () => flipCard(secondCard));
+  matchedPairs++;
+
+  if (matchedPairs === icons.length) {
+    clearInterval(timerInterval);
+    setTimeout(() => {
+      document.getElementById('final-time').textContent = seconds;
+      document.getElementById('final-moves').textContent = moves;
+      document.getElementById('win-popup').style.display = 'flex';
+    }, 500);
+  }
+
+  resetBoard();
 }
 
-.card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.5s;
-  transform-style: preserve-3d;
-  transform: rotateY(0deg);
+function unflipCards() {
+  lockBoard = true;
+  setTimeout(() => {
+    firstCard.classList.remove('flipped');
+    secondCard.classList.remove('flipped');
+    resetBoard();
+  }, 800);
 }
 
-.card.flipped .card-inner {
-  transform: rotateY(180deg);
+function resetBoard() {
+  [hasFlippedCard, lockBoard] = [false, false];
+  [firstCard, secondCard] = [null, null];
 }
 
-.card-front, .card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+function updateMoves() {
+  document.getElementById('moves').textContent = moves;
 }
 
-.card-front {
-  background: #ffffff;
-  border: 2px solid #ccc;
-  transform: rotateY(180deg);
-}
-
-.card-front img {
-  width: 60px;
-  height: 60px;
-}
-
-.card-back {
-  background: #333;
-  color: white;
-  transform: rotateY(0deg);
-  font-size: 36px;
-}
-
-button {
-  padding: 10px 20px;
-  border: none;
-  background: #333;
-  color: white;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* Popup Styling */
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-.popup-content {
-  background: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  text-align: center;
+function updateTimerDisplay() {
+  document.getElementById('timer').textContent = seconds;
 }
