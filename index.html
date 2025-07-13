@@ -7,13 +7,20 @@
 </head>
 <body>
 
-  <h1>🃏 XA Memory Match Game</h1>
+  <h1>🍓 XA's Match Game</h1>
+
+  <div class="info">
+    <span>🕒 Time: <span id="timer">0</span>s</span>
+    <span>🎮 Moves: <span id="moves">0</span></span>
+  </div>
+
   <div class="game-board" id="game-board"></div>
   <button onclick="startGame()">Restart Game 🔄</button>
 
   <div id="win-popup" class="popup">
     <div class="popup-content">
       <h2>🎉 You Win!</h2>
+      <p>You finished in <span id="final-time"></span> seconds with <span id="final-moves"></span> moves.</p>
       <button onclick="startGame()">Play Again</button>
     </div>
   </div>
