@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>XA Memory Match Game</title>
+  <title>XA's Match Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,9 +30,20 @@
     </div>
   </div>
 
+  <!-- Audio Elements -->
   <audio id="flip-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-flip-card-1105.mp3"></audio>
   <audio id="match-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-winning-notification-2018.mp3"></audio>
 
   <script src="script.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('✅ Service Worker registered.', reg))
+        .catch(err => console.error('❌ Service Worker failed.', err));
+    }
+  </script>
+  
 </body>
 </html>
