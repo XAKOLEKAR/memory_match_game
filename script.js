@@ -14,6 +14,9 @@ let hasFlippedCard = false;
 let lockBoard = false;
 let firstCard, secondCard;
 let matchedPairs = 0;
+let moves = 0;
+let timerInterval;
+let seconds = 0;
 
 let flipSound, matchSound;
 
@@ -26,7 +29,17 @@ window.onload = () => {
 function startGame() {
   gameBoard.innerHTML = '';
   matchedPairs = 0;
+  moves = 0;
+  seconds = 0;
+  updateMoves();
+  updateTimerDisplay();
   document.getElementById('win-popup').style.display = 'none';
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    seconds++;
+    updateTimerDisplay();
+  }, 1000);
 
   const iconPairs = [...icons, ...icons];
   iconPairs.sort(() => 0.5 - Math.random());
@@ -61,6 +74,8 @@ function flipCard(card) {
   }
 
   secondCard = card;
+  moves++;
+  updateMoves();
   checkForMatch();
 }
 
@@ -79,7 +94,10 @@ function handleMatch() {
   matchedPairs++;
 
   if (matchedPairs === icons.length) {
+    clearInterval(timerInterval);
     setTimeout(() => {
+      document.getElementById('final-time').textContent = seconds;
+      document.getElementById('final-moves').textContent = moves;
       document.getElementById('win-popup').style.display = 'flex';
     }, 500);
   }
@@ -99,4 +117,12 @@ function unflipCards() {
 function resetBoard() {
   [hasFlippedCard, lockBoard] = [false, false];
   [firstCard, secondCard] = [null, null];
+}
+
+function updateMoves() {
+  document.getElementById('moves').textContent = moves;
+}
+
+function updateTimerDisplay() {
+  document.getElementById('timer').textContent = seconds;
 }
